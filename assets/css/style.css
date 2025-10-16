@@ -1,0 +1,107 @@
+/**
+ * SideCard MundoM
+ * CreatedBy: Cainhooow
+ * With: KairosDev
+ */
+
+@import "./menu.css";
+@import "./floating.css";
+@import "./keyframes.css";
+
+/* Overlay */
+.mundom-cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 99998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mundom-cart-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mundom-cart-qty-manage {
+    width: min-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+body .mundom-cart-qty-manage button {
+    padding: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: #000000 !important;
+    margin: 0 !important;
+}
+
+body .mundom-cart-qty-manage button:focus {
+    background-color: transparent !important;
+    border: none !important;
+    color: #000000 !important;
+}
+
+body .mundom-cart-qty-manage button:hover {
+    background-color: transparent !important;
+    color: #000000 !important;
+    border: none !important;
+}
+
+/**
+ * SideCard MundoM
+ * CreatedBy: Cainhooow
+ * With: KairosDev
+ */
+
+@media (max-width: 480px) {
+    .mundom-sidecart-menu {
+        width: 100%;
+        border-left: none;
+    }
+
+    .cart-menu-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .cart-menu-action {
+        right: 1rem;
+    }
+
+    .cart-content {
+        padding: 0.8rem;
+    }
+
+    .cart-footer {
+        padding: 1rem 1.5rem;
+    }
+
+    .mundom-cart-trigger {
+        bottom: 20px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+    }
+
+    .checkout-actions {
+        flex-direction: column;
+    }
+
+    .cart-item {
+        padding: 1rem;
+    }
+}
+
+/**
+    * SideCard MundoM
+    * CreatedBy: Cainhooow
+    * With: KairosDev
+    */
