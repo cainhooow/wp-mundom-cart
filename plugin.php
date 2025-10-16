@@ -3,7 +3,7 @@
 /**
  * Plugin Name: SideCart MundoM
  * Description: Plugin para criar um carrinho flutuante e personalizado
- * Version: 1.5.3
+ * Version: 1.5.6
  * Author: Cainhooow
  * Requires Plugins: modal-api, woocommerce
  * Text Domain: sidecart-mundom
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('M_SIDECART_PLUGIN_VERSION', '1.5.3');
+define('M_SIDECART_PLUGIN_VERSION', '1.5.6');
 
 class SideCartMundoM
 {
@@ -35,6 +35,10 @@ class SideCartMundoM
         add_action('woocommerce_after_add_to_cart_quantity', array($this, 'render_qty_manage_buttons'));
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'cart_fragments'));
 
+        add_filter('woocommerce_quantity_input_args', array($this, 'modify_quantity_field'), 10, 2);
+        add_action('woocommerce_before_add_to_cart_quantity', array($this, 'hide_quantity_wrapper_start'));
+        add_action('woocommerce_after_add_to_cart_quantity', array($this, 'hide_quantity_wrapper_end'), 999);
+
         add_action('template_redirect', array($this, 'setup_custom_button'));
     }
 
@@ -51,6 +55,53 @@ class SideCartMundoM
 
             add_action('woocommerce_after_add_to_cart_button', array($this, 'custom_add_to_cart_button'));
             add_action('woocommerce_after_add_to_cart_button', array($this, 'hide_default_button_css'), 20);
+        }
+    }
+
+    public function modify_quantity_field($args, $product)
+    {
+        if (!$product) {
+            return $args;
+        }
+
+        $stock_quantity = $product->get_stock_quantity();
+        
+        if ($stock_quantity !== null && $stock_quantity < 2) {
+            $args['min_value'] = 1;
+            $args['max_value'] = 1;
+            $args['input_value'] = 1;
+        }
+
+        return $args;
+    }
+
+    public function hide_quantity_wrapper_start()
+    {
+        global $product;
+        
+        if (!$product) {
+            return;
+        }
+
+        $stock_quantity = $product->get_stock_quantity();
+        
+        if ($stock_quantity !== null && $stock_quantity < 2) {
+            echo '<div class="mundom-hide-quantity" style="display: none !important;">';
+        }
+    }
+
+    public function hide_quantity_wrapper_end()
+    {
+        global $product;
+        
+        if (!$product) {
+            return;
+        }
+
+        $stock_quantity = $product->get_stock_quantity();
+        
+        if ($stock_quantity !== null && $stock_quantity < 2) {
+            echo '</div>';
         }
     }
 
@@ -100,6 +151,9 @@ class SideCartMundoM
             .animated-cart-button-wrapper {
                 display: block !important;
             }
+            .mundom-hide-quantity {
+                display: none !important;
+            }
         </style>';
     }
 
@@ -140,6 +194,18 @@ class SideCartMundoM
 
     public function render_qty_manage_buttons()
     {
+        global $product;
+        
+        if (!$product) {
+            return;
+        }
+
+        $stock_quantity = $product->get_stock_quantity();
+        
+        if ($stock_quantity !== null && $stock_quantity < 2) {
+            return;
+        }
+
         require __DIR__ . '/ui/qty-buttons.php';
     }
 
@@ -235,6 +301,7 @@ class SideCartMundoM
                 $product = $cart_item['data'];
                 $product_id = $cart_item['product_id'];
                 $quantity = $cart_item['quantity'];
+                $stock_quantity = $product->get_stock_quantity();
 
                 $cart_items[] = array(
                     'key' => $cart_item_key,
@@ -244,7 +311,9 @@ class SideCartMundoM
                     'quantity' => $quantity,
                     'line_total' => $cart_item['line_total'],
                     'image' => wp_get_attachment_image_src($product->get_image_id(), 'thumbnail')[0] ?? '',
-                    'permalink' => $product->get_permalink()
+                    'permalink' => $product->get_permalink(),
+                    'stock_quantity' => $stock_quantity,
+                    'max_quantity' => $stock_quantity !== null ? $stock_quantity : 9999
                 );
 
                 $cart_count += $quantity;

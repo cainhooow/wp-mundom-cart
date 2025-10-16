@@ -132,8 +132,12 @@ jQuery(document).ready(function ($) {
                 `<img src="${item.image}" alt="${item.name}" loading="lazy">` :
                 '<div class="no-image"><i class="ri-image-line"></i></div>';
 
+            const hideQuantityControls = item.stock_quantity !== null && item.stock_quantity < 2;
+            const quantityControlsClass = hideQuantityControls ? 'quantity-controls-hidden' : '';
+            const maxQuantity = item.max_quantity || 9999;
+
             return `
-                <div class="cart-item" data-key="${item.key}">
+                <div class="cart-item" data-key="${item.key}" data-max-quantity="${maxQuantity}">
                     <div class="cart-item-image">
                         ${imageHtml}
                     </div>
@@ -141,15 +145,16 @@ jQuery(document).ready(function ($) {
                         <h4 class="cart-item-name">${item.name}</h4>
                         <div class="cart-item-price">R$ ${parseFloat(item.price).toFixed(2).replace('.', ',')}</div>
                         <div class="cart-item-controls">
-                            <div class="quantity-controls">
-                                <button class="quantity-btn decrease" data-action="decrease">
+                            <div class="quantity-controls ${quantityControlsClass}" ${hideQuantityControls ? 'style="display: none;"' : ''}>
+                                <button class="quantity-btn decrease" data-action="decrease" ${item.quantity <= 1 || hideQuantityControls ? 'disabled' : ''}>
                                     <i class="ri-subtract-line"></i>
                                 </button>
-                                <input type="number" class="quantity-input" value="${item.quantity}" min="1" readonly>
-                                <button class="quantity-btn increase" data-action="increase">
+                                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${maxQuantity}" readonly>
+                                <button class="quantity-btn increase" data-action="increase" ${item.quantity >= maxQuantity || hideQuantityControls ? 'disabled' : ''}>
                                     <i class="ri-add-line"></i>
                                 </button>
                             </div>
+                            ${hideQuantityControls ? `<div class="quantity-display">Qtd: ${item.quantity}</div>` : ''}
                             <button class="remove-btn" title="Remover item">
                                 <i class="ri-delete-bin-line"></i>
                             </button>
@@ -162,16 +167,24 @@ jQuery(document).ready(function ($) {
         handleQuantityChange: function (e) {
             e.preventDefault();
             const $btn = $(e.currentTarget);
+
+            if ($btn.prop('disabled')) {
+                return;
+            }
+
             const $cartItem = $btn.closest('.cart-item');
             const $quantityInput = $cartItem.find('.quantity-input');
             const cartItemKey = $cartItem.data('key');
+            const maxQuantity = $cartItem.data('max-quantity') || 9999;
             const action = $btn.data('action');
             let currentQuantity = parseInt($quantityInput.val());
 
-            if (action === 'increase') {
+            if (action === 'increase' && currentQuantity < maxQuantity) {
                 currentQuantity++;
             } else if (action === 'decrease' && currentQuantity > 1) {
                 currentQuantity--;
+            } else {
+                return;
             }
 
             this.updateCartItem(cartItemKey, currentQuantity, $cartItem);
@@ -181,13 +194,16 @@ jQuery(document).ready(function ($) {
             const $input = $(e.currentTarget);
             const $cartItem = $input.closest('.cart-item');
             const cartItemKey = $cartItem.data('key');
+            const maxQuantity = $cartItem.data('max-quantity') || 9999;
             let quantity = parseInt($input.val());
 
             if (isNaN(quantity) || quantity < 1) {
                 quantity = 1;
-                $input.val(1);
+            } else if (quantity > maxQuantity) {
+                quantity = maxQuantity;
             }
 
+            $input.val(quantity);
             this.updateCartItem(cartItemKey, quantity, $cartItem);
         },
 
@@ -385,6 +401,24 @@ jQuery(document).ready(function ($) {
             
             body.mundom-cart-open {
                 overflow: hidden;
+            }
+            
+            .quantity-controls-hidden,
+            .quantity-controls[style*="display: none"] {
+                display: none !important;
+            }
+            
+            .quantity-display {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 0.9rem;
+            }
+            
+            .quantity-btn:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
             }
             
             @media (max-width: 480px) {

@@ -228,8 +228,13 @@
     font-size: 14px;
 }
 
-.quantity-btn:hover {
+.quantity-btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.2);
+}
+
+.quantity-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
 
 .quantity-input {

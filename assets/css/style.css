@@ -42,6 +42,7 @@ body .mundom-cart-qty-manage button {
     border: none !important;
     color: #000000 !important;
     margin: 0 !important;
+    transition: opacity 0.3s ease !important;
 }
 
 body .mundom-cart-qty-manage button:focus {
@@ -50,10 +51,32 @@ body .mundom-cart-qty-manage button:focus {
     color: #000000 !important;
 }
 
-body .mundom-cart-qty-manage button:hover {
+body .mundom-cart-qty-manage button:hover:not(:disabled) {
     background-color: transparent !important;
     color: #000000 !important;
     border: none !important;
+}
+
+body .mundom-cart-qty-manage button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.3 !important;
+}
+
+.quantity-controls-hidden {
+    display: none !important;
+}
+
+.quantity-display {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.mundom-hide-quantity {
+    display: none !important;
 }
 
 /**
@@ -101,7 +124,7 @@ body .mundom-cart-qty-manage button:hover {
 }
 
 /**
-    * SideCard MundoM
-    * CreatedBy: Cainhooow
-    * With: KairosDev
-    */
+* SideCard MundoM
+* CreatedBy: Cainhooow
+* With: KairosDev
+*/
